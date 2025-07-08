@@ -80,18 +80,21 @@ if test -f $extensions_file
             set full_url "https://extensions.gnome.org$link"
             echo "Downloading $uuid..."
             
-            id=$(echo "${full_url}" | cut --delimiter=/ --fields=5)
-            url_pkg_metadata="https://extensions.gnome.org/extension-info/?pk=${id}"
-            # Extract data for each extension
-            uuid=$(curl -s "$url_pkg_metadata" | jq -r '.uuid' | tr -d '@')
-            latest_extension_version=$(curl -s "$url_pkg_metadata" | jq -r '.shell_version_map | to_entries | max_by(.value.version) | .value.version')
-            latest_shell_version=$(curl -s "$url_pkg_metadata" | jq -r '.shell_version_map | to_entries | max_by(.value.version) | .key')
-            # get  package
-            filename="${uuid}.v${latest_extension_version}.shell-extension.zip"
-            url_pkg="https://extensions.gnome.org/extension-data/${filename}"
-            wget -P /tmp "${url_pkg}"
-            # install package
-            gnome-extensions install "/tmp/${filename}"
+            # Extract the ID from the full_url
+            set id (echo $full_url | cut -d/ -f5)
+            # Construct the metadata URL
+            set url_pkg_metadata "https://extensions.gnome.org/extension-info/?pk=$id"
+            # Extract data for the extension
+            set uuid (curl -s "$url_pkg_metadata" | jq -r '.uuid' | tr -d '@')
+            set latest_extension_version (curl -s "$url_pkg_metadata" | jq -r '.shell_version_map | to_entries | max_by(.value.version) | .value.version')
+            set latest_shell_version (curl -s "$url_pkg_metadata" | jq -r '.shell_version_map | to_entries | max_by(.value.version) | .key')
+            # Compose filename and download URL
+            set filename "$uuid.v$latest_extension_version.shell-extension.zip"
+            set url_pkg "https://extensions.gnome.org/extension-data/$filename"
+            # Download the extension package
+            wget -P /tmp "$url_pkg"
+            # Install the extension
+            gnome-extensions install "/tmp/$filename"
             echo "Installed $uuid"
             gnome-extensions enable $uuid
         else
