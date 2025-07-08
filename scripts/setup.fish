@@ -90,7 +90,7 @@ echo ""
 
 ## apply themes
 echo "Applying themes for GNOME shell, cursors, applications..."
-python3 scripts/theme-changer.py Dracula
+python3 scripts/libadwaita-tc.py Dracula
 echo ""
 
 gsettings set org.gnome.desktop.interface cursor-theme 'Bibata-Modern-Ice'
@@ -103,6 +103,7 @@ set wallpaper_path "file://$HOME/Pictures/Wallpaper/Spiderverse.jpg"
 if test -f (string replace "file://" "" $wallpaper_path)
     echo "Setting wallpaper"
     gsettings set org.gnome.desktop.background picture-uri "$wallpaper_path"
+    gsettings set org.gnome.desktop.background picture-uri-dark "$wallpaper_path"
 else
     echo "Wallpaper not found at $wallpaper_path"
 end
