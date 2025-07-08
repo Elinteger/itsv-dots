@@ -10,7 +10,7 @@ echo ""
 
 
 ## install "required" packages (fit to my usecase)
-set -l dnf_packages gnome-extensions-app gnome-tweaks fastfetch syncthing spicetify-cli stow curl
+set -l dnf_packages gnome-extensions-app gnome-tweaks fastfetch syncthing stow curl
 
 for pkg in $dnf_packages
     if not rpm -q "$pkg" >/dev/null 2>&1
@@ -23,6 +23,7 @@ for pkg in $dnf_packages
 end
 echo ""
 
+
 ## install spotify
 if not flatpak list | grep -q com.spotify.Client
     echo "Installing Spotify via Flatpak..."
@@ -31,6 +32,10 @@ else
     echo "Spotify is already installed (Flatpak)."
 end
 echo ""
+
+
+## install spicetify
+curl -fsSL https://raw.githubusercontent.com/spicetify/cli/main/install.sh | sh
 
 
 ## install fisher (to manage fish plugins)
@@ -46,6 +51,7 @@ echo ""
 ## stow configs, wallpaper, themes, icons
 echo "Symlinking dotfiles with GNU Stow"
 
+cd ~/dotfiles
 for dir in (find . -maxdepth 1 -type d -not -name '.' | string replace './' '')
     if begin; test $dir != ".git"; and test $dir != "scripts"; and test $dir != "images"; end
         echo "Stowing $dir..."
@@ -69,15 +75,23 @@ if test -f $extensions_file
         set metadata_url "https://extensions.gnome.org/extension-info/?uuid=$uuid"
         set info (curl -s "$metadata_url")
         set link (echo $info | string match -r '"link": ?"[^"]+"' | string replace -r '"link": ?"' '' | string replace '"' '')
-        #set download_url (echo $info | string match -r '"download_url": ?"([^"]+)"' | string replace -r '^.*: ?"([^"]+)"$' '$1')
 
-        if test -n "$download_url"
+        if test -n "$link"
             set full_url "https://extensions.gnome.org$link"
             echo "Downloading $uuid..."
-            echo "This is the url: $full_url"
-            mkdir -p /tmp/gnome-extensions
-            wget -q -O /tmp/gnome-extensions/$uuid.zip "$full_url"
-            unzip -qo /tmp/gnome-extensions/$uuid.zip -d $extensions_dir/$uuid
+            
+            id=$(echo "${full_url}" | cut --delimiter=/ --fields=5)
+            url_pkg_metadata="https://extensions.gnome.org/extension-info/?pk=${id}"
+            # Extract data for each extension
+            uuid=$(curl -s "$url_pkg_metadata" | jq -r '.uuid' | tr -d '@')
+            latest_extension_version=$(curl -s "$url_pkg_metadata" | jq -r '.shell_version_map | to_entries | max_by(.value.version) | .value.version')
+            latest_shell_version=$(curl -s "$url_pkg_metadata" | jq -r '.shell_version_map | to_entries | max_by(.value.version) | .key')
+            # get  package
+            filename="${uuid}.v${latest_extension_version}.shell-extension.zip"
+            url_pkg="https://extensions.gnome.org/extension-data/${filename}"
+            wget -P /tmp "${url_pkg}"
+            # install package
+            gnome-extensions install "/tmp/${filename}"
             echo "Installed $uuid"
             gnome-extensions enable $uuid
         else
