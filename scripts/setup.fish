@@ -68,11 +68,13 @@ if test -f $extensions_file
     for uuid in (cat $extensions_file)
         set metadata_url "https://extensions.gnome.org/extension-info/?uuid=$uuid"
         set info (curl -s "$metadata_url")
-        set download_url (echo $info | string match -r '"download_url": ?"([^"]+)"' | string replace -r '^.*: ?"([^"]+)"$' '$1')
+        set link (echo $info | string match -r '"link": ?"[^"]+"' | string replace -r '"link": ?"' '' | string replace '"' '')
+        #set download_url (echo $info | string match -r '"download_url": ?"([^"]+)"' | string replace -r '^.*: ?"([^"]+)"$' '$1')
 
         if test -n "$download_url"
-            set full_url "https://extensions.gnome.org$download_url"
+            set full_url "https://extensions.gnome.org$link"
             echo "Downloading $uuid..."
+            echo "This is the url: $full_url"
             mkdir -p /tmp/gnome-extensions
             wget -q -O /tmp/gnome-extensions/$uuid.zip "$full_url"
             unzip -qo /tmp/gnome-extensions/$uuid.zip -d $extensions_dir/$uuid
