@@ -10,7 +10,7 @@
 
 
 ## Installation
-> ⚠️ The setup script has not yet been tested!
+> ⚠️ Automatic installation of extensions doesn't work properly yet!
 
 Installation of packages is done with the `dnf` package manager. If you're using GNOME on a Linux distribution with a different package manager, edit the [installation script](./scripts/setup.fish) accordingly.
 
