@@ -10,7 +10,7 @@ echo ""
 
 
 ## install "required" packages (fit to my usecase)
-set -l dnf_packages fish gnome-extensions-app gnome-tweaks fastfetch syncthing spicetify-cli stow curl
+set -l dnf_packages gnome-extensions-app gnome-tweaks fastfetch syncthing spicetify-cli stow curl
 
 for pkg in $dnf_packages
     if not rpm -q "$pkg" >/dev/null 2>&1

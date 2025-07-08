@@ -14,12 +14,18 @@
 
 Installation of packages is done with the `dnf` package manager. If you're using GNOME on a Linux distribution with a different package manager, edit the [installation script](./scripts/setup.fish) accordingly.
 
+### 0. Install Fedora (42), reboot your system and create an account and password.
+
 ### 1. Clone the repository into your `$HOME` directory
 `git clone https://github.com/Elinteger/itsv-dots.git ~/dotfiles`
 
 This clones the repository into `~/dotfiles`, which both `gnu stow` and the [installation script](./scripts/setup.fish) expect. 
 
 ### 2. Run the Setup Script
+Install the [fish-shell](https://fishshell.com) package.
+
+`sudo dnf install fish`
+
 Go into the directory of the [installation script](./scripts/setup.fish).
 
 `cd ~/dotfiles/scripts/`
