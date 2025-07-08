@@ -46,12 +46,15 @@ echo ""
 ## stow configs, wallpaper, themes, icons
 echo "Symlinking dotfiles with GNU Stow"
 
-for dir in (ls -d */ | string trim --right '/')
-    if test $dir != ".git" -a $dir != "scripts"
+for dir in (find . -maxdepth 1 -type d -not -name '.' | string replace './' '')
+    if begin; test $dir != ".git"; and test $dir != "scripts"; and test $dir != "images"; end
         echo "Stowing $dir..."
-        stow $dir
+        mkdir -p "$HOME/$dir"
+        stow --adopt --target="$HOME/$dir" $dir
     end
 end
+# change files back to our files after adopting, as they are overwritten with the ones that already were on the system
+git restore .
 echo ""
 
 
